@@ -1,0 +1,20 @@
+machine:
+  services:
+    - docker
+  post:
+    - sudo pip install awsebcli --ignore-installed setuptools
+    - sudo pip install awscli --ignore-installed setuptools
+
+dependencies:
+  pre:
+    - ./scripts/setup/circle_eb_setup.sh
+
+test:
+  override:
+    - make test
+
+deployment:
+  staging:
+    branch: master
+    commands:
+    - make release env=qa type=web
