@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 # echo Is this a Ruby project? (Y/N)
 # read ruby
 # echo Are you using circle ci? (Y/N)
