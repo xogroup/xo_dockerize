@@ -3,7 +3,18 @@ Adds the skeleton of files needed to get your project working with Docker and El
 
 The goal of this project is to enable any existing or new project to conform to a template of dockerizing and deploying to Elastic Beanstalk.
 
-It adds the necessary files to your project so that you can just run 
+It adds the necessary files to your project so that you can just run
 
-``` make release env=qa type=web``` 
+``` make release env=qa type=web ```
 
+## Setup
+
+``` make setup ```
+
+This will copy all the files needed based on the answers to the questions
+
+### Supports
+
+* General Application Setup
+* Ruby/Rails setup
+* Circle CI
