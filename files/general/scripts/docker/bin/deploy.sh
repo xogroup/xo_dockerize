@@ -21,5 +21,17 @@ errors=`eb use $APP_ENV-$APP_NAME-$VERSION-$TYPE | grep "ERROR: Environment"`
 if [$errors == ""]; then
   eb deploy $APP_ENV-$APP_NAME-$VERSION-$TYPE --timeout 30 --staged
 else
-  eb create $APP_ENV-$APP_NAME-$VERSION-$TYPE --cfg $APP_NAME-$APP_ENV -c $APP_ENV-$APP_NAME-$VERSION-$TYPE --timeout 15 --envvars AWS_ACCESS_KEY_ID=$AWS_KEY,AWS_SECRET_ACCESS_KEY=$AWS_SECRET,AWS_REGION=$AWS_REGION,WEB_TYPE=$TYPE,WEB_CONCURRENCY=3
+  eb create $APP_ENV-$APP_NAME-$VERSION-$TYPE \
+    --tags Name=$APP_ENV-$APP_NAME \
+    --cfg $APP_NAME-$APP_ENV \
+    -c $APP_ENV-$APP_NAME-$VERSION-$TYPE \
+    --timeout 15 \
+    --envvars AWS_ACCESS_KEY_ID=$AWS_KEY,\
+              AWS_SECRET_ACCESS_KEY=$AWS_SECRET,\
+              AWS_REGION=$AWS_REGION,\
+              SECRET_KEY_BASE=$SECRET_KEY_BASE,\
+              WEB_TYPE=$TYPE,\
+              RAILS_ENV=$APP_ENV_FULL,\
+              RAKE_ENV=$APP_ENV_FULL,\
+              WEB_CONCURRENCY=3
 fi
