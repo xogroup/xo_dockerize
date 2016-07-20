@@ -1,7 +1,7 @@
 {
   "AWSEBDockerrunVersion": "1",
   "Image": {
-    "Name": "ECR_HOST/project_name:prod",
+    "Name": "ECR_HOST/sample_app:prod",
     "Update": "true"
   },
   "Ports": [
