@@ -7,14 +7,13 @@ class Dockerize
   include Commander::Methods
   # include whatever modules you need
 
-  @working_dir = "./"
 
   def run
     program :name, 'Dockerize'
     program :version, '0.1.0'
     program :description, 'A script to add the necessary files to your application in order for it to use docker  and deploy easily'
 
-    global_option('-t', '--test', 'Runs the dockerizing process into a test folder') { @working_dir = "./test" }
+    global_option('-t', '--test', 'Runs the dockerizing process into a test folder') { working_dir = "./test" }
 
     command :this do |c|
       c.syntax = 'dockerize this [options]'
@@ -25,6 +24,7 @@ class Dockerize
       c.option '--circleci', 'Adds the files for a circle ci supported project'
       c.action do |args, options|
         # Do something or c.when_called Dockerize::Commands::Dockerize
+        @working_dir = "../"
         copy_files(options)
         set_project_info
       end
@@ -46,18 +46,18 @@ class Dockerize
 
   def replace_values(app_name, ecr_host, version)
     replace("sample_app", app_name, [
-      "#{@working_dir}/APP_NAME",
-      "#{@working_dir}/scripts/docker/prod-Dockerrun.aws.json",
-      "#{@working_dir}/scripts/docker/qa-Dockerrun.aws.json",
-      "#{@working_dir}/scripts/docker/bin/push.sh",
-      "#{@working_dir}/scripts/docker/bin/build.sh",
+      "#{working_dir}/APP_NAME",
+      "#{working_dir}/scripts/docker/prod-Dockerrun.aws.json",
+      "#{working_dir}/scripts/docker/qa-Dockerrun.aws.json",
+      "#{working_dir}/scripts/docker/bin/push.sh",
+      "#{working_dir}/scripts/docker/bin/build.sh",
     ])
     replace("ECR_HOST", ecr_host, [
-      "#{@working_dir}/scripts/docker/prod-Dockerrun.aws.json",
-      "#{@working_dir}/scripts/docker/qa-Dockerrun.aws.json",
-      "#{@working_dir}/scripts/docker/bin/push.sh",
+      "#{working_dir}/scripts/docker/prod-Dockerrun.aws.json",
+      "#{working_dir}/scripts/docker/qa-Dockerrun.aws.json",
+      "#{working_dir}/scripts/docker/bin/push.sh",
     ])
-    replace("0.1.0", version, ["#{@working_dir}/VERSION"])
+    replace("0.1.0", version, ["#{working_dir}/VERSION"])
   end
 
   def replace(before, after, files)
@@ -71,7 +71,8 @@ class Dockerize
 
   def copy_files(options)
     puts "Copying setup files...\n"
-    FileUtils.cp_r './files/general/.', @working_dir
+    require "pry"; binding.pry
+    FileUtils.cp_r './files/general/.', working_dir
     options.default.keys.each do |opt|
       copy_specific_files(option: opt)
     end unless options.default.empty?
@@ -81,11 +82,15 @@ class Dockerize
     case option.to_s
     when "ruby"
       puts "Copying Ruby setup files"
-      FileUtils.cp_r './files/ruby/scripts/.', '#{@working_dir}/scripts'
+      FileUtils.cp_r './files/ruby/scripts/.', "#{working_dir}/scripts"
     when "circleci"
       puts "Copying Circle CI setup files"
-      FileUtils.cp_r './files/circle_ci/.', '#{@working_dir}/.'
+      FileUtils.cp_r './files/circle_ci/.', "#{working_dir}/."
     end
+  end
+
+  def working_dir(dir = "./")
+    @working_dir ||= dir
   end
 end
 
