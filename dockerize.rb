@@ -71,7 +71,6 @@ class Dockerize
 
   def copy_files(options)
     puts "Copying setup files...\n"
-    require "pry"; binding.pry
     FileUtils.cp_r './files/general/.', working_dir
     options.default.keys.each do |opt|
       copy_specific_files(option: opt)
