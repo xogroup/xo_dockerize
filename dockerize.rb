@@ -13,7 +13,7 @@ class Dockerize
     program :version, '0.1.0'
     program :description, 'A script to add the necessary files to your application in order for it to use docker  and deploy easily'
 
-    global_option('-t', '--test', 'Runs the dockerizing process into a test folder') { working_dir = "./test" }
+    global_option('-t', '--test', 'Runs the dockerizing process into a test folder') { working_dir("./test") }
 
     command :this do |c|
       c.syntax = 'dockerize this [options]'
@@ -24,7 +24,6 @@ class Dockerize
       c.option '--circleci', 'Adds the files for a circle ci supported project'
       c.action do |args, options|
         # Do something or c.when_called Dockerize::Commands::Dockerize
-        @working_dir = "../"
         copy_files(options)
         set_project_info
       end
@@ -39,7 +38,7 @@ class Dockerize
     puts "Please enter the information for your application:\n"
     app_name = ask("Project Name:")
     ecr_host = ask("ECR Host:")
-    version = ask("Version:")
+    version = ask("Version: (ie: 1-0-0)")
 
     replace_values(app_name, ecr_host, version)
   end
@@ -70,8 +69,13 @@ class Dockerize
   end
 
   def copy_files(options)
+    type(choose("Web or Worker?", :web, :worker))
     puts "Copying setup files...\n"
     FileUtils.cp_r './files/general/.', working_dir
+
+    puts "Copying type specific deploy files...\n"
+    FileUtils.cp_r "./files/#{type}/.", working_dir
+
     options.default.keys.each do |opt|
       copy_specific_files(option: opt)
     end unless options.default.empty?
@@ -81,15 +85,21 @@ class Dockerize
     case option.to_s
     when "ruby"
       puts "Copying Ruby setup files"
-      FileUtils.cp_r './files/ruby/scripts/.', "#{working_dir}/scripts"
+      FileUtils.cp_r './files/ruby/general/scripts/.', "#{working_dir}/scripts"
+
+      FileUtils.cp_r "./files/ruby/#{type}/scripts/.", "#{working_dir}/scripts"
     when "circleci"
       puts "Copying Circle CI setup files"
       FileUtils.cp_r './files/circle_ci/.', "#{working_dir}/."
     end
   end
 
-  def working_dir(dir = "./")
+  def working_dir(dir = "../")
     @working_dir ||= dir
+  end
+
+  def type(type = "web")
+    @type ||= type
   end
 end
 
